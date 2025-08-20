@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Shopping Assistant</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        #chat-box {
+            background: #fff;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            max-width: 500px;
+            margin: auto;
+        }
+        #messages {
+            margin: 15px 0;
+            min-height: 100px;
+        }
+        .user {
+            color: blue;
+        }
+        .bot {
+            color: green;
+        }
+        input, button {
+            padding: 10px;
+            margin: 5px 0;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <h1>AI Shopping Assistant</h1>
+    <div id="chat-box">
+        <div id="messages"></div>
+        <input type="text" id="user-input" placeholder="Ask something...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <script>
+        async function sendMessage() {
+            const inputField = document.getElementById("user-input");
+            const message = inputField.value;
+            if (!message) return;
+
+            // Show user message
+            const messagesDiv = document.getElementById("messages");
+            messagesDiv.innerHTML += `<p class="user"><b>You:</b> ${message}</p>`;
+            inputField.value = "";
+
+            // Send to Flask backend
+            const response = await fetch("/chat", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ message: message })
+            });
+
+            const data = await response.json();
+
+            // Show bot reply
+            messagesDiv.innerHTML += `<p class="bot"><b>Bot:</b> ${data.reply}</p>`;
+
+        }
+    </script>
+</body>
+</html>
