@@ -4,15 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Shopping Assistant</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="script.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <h1>AI Shopping Assistant</h1>
-    <div id="chat-box">
-        <div id="messages"></div>
-        <input type="text" id="user-input" placeholder="Ask something...">
-        <button onclick="sendMessage()">Send</button>
+
+    <div class="chat-container">
+        <div class="chat-box" id="chat-box">
+            <div class="message bot">
+                Hello! I’m your AI shopping assistant. How can I help you?
+            </div>
+        </div>
+
+        <div class="input-area">
+            <input type="text" id="user-input" placeholder="Type your message...">
+            <button onclick="sendMessage()">Send</button>
+            <button onclick="clearHistory()" class="clear-btn">Clear</button>
+        </div>
     </div>
+
+    <!-- Link JavaScript at the end of body -->
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
