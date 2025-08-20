@@ -1,0 +1,6 @@
+[
+{"id": 1, "name": "Red T-Shirt", "category": "clothing", "price": 400},
+{"id": 2, "name": "Blue Jeans", "category": "clothing", "price": 1200},
+{"id": 3, "name": "Sports Shoes", "category": "footwear", "price": 2000},
+{"id": 4, "name": "Smart Watch", "category": "electronics", "price": 2500}
+]
