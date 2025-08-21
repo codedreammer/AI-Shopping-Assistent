@@ -1,0 +1,11 @@
+[{"id": 1, "name": "Red T-Shirt", "category": "clothing", "price": 400},{"id": 2, "name": "Blue Jeans", "category": "clothing", "price": 1200},{"id": 3, "name": "Sports Shoes", "category": "footwear", "price": 2000},{"id": 4, "name": "Smart Watch", "category": "electronics", "price": 2500},
+
+{"id": 5, "name": "Leather Jacket", "category": "clothing", "price": 3500},
+{"id": 6, "name": "Formal Shoes", "category": "footwear", "price": 2200},
+{"id": 7, "name": "Wireless Earbuds", "category": "electronics", "price": 1800},
+{"id": 8, "name": "Microwave Oven", "category": "home appliances", "price": 6000},
+{"id": 9, "name": "Perfume Set", "category": "beauty", "price": 1500},
+{"id": 10, "name": "Dining Table", "category": "furniture", "price": 12000},
+{"id": 11, "name": "C++ Programming Book", "category": "books", "price": 500},
+{"id": 12, "name": "Organic Rice 5kg", "category": "groceries", "price": 700}
+]
