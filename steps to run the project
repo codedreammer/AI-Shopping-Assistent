@@ -1,0 +1,8 @@
+step 1
+venv\Scripts\activate  
+step 2
+pip install flask (IF not installed)
+step 3
+python app.py
+step 4
+open browser and go to http://
