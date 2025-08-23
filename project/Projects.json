@@ -1,11 +1,14 @@
-[{"id": 1, "name": "Red T-Shirt", "category": "clothing", "price": 400},{"id": 2, "name": "Blue Jeans", "category": "clothing", "price": 1200},{"id": 3, "name": "Sports Shoes", "category": "footwear", "price": 2000},{"id": 4, "name": "Smart Watch", "category": "electronics", "price": 2500},
-
-{"id": 5, "name": "Leather Jacket", "category": "clothing", "price": 3500},
-{"id": 6, "name": "Formal Shoes", "category": "footwear", "price": 2200},
-{"id": 7, "name": "Wireless Earbuds", "category": "electronics", "price": 1800},
-{"id": 8, "name": "Microwave Oven", "category": "home appliances", "price": 6000},
-{"id": 9, "name": "Perfume Set", "category": "beauty", "price": 1500},
-{"id": 10, "name": "Dining Table", "category": "furniture", "price": 12000},
-{"id": 11, "name": "C++ Programming Book", "category": "books", "price": 500},
-{"id": 12, "name": "Organic Rice 5kg", "category": "groceries", "price": 700}
+[
+  {"id": 1, "name": "Red T-Shirt", "category": "clothing", "price": 400, "brand": "Nike", "image": "red-tshirt.jpg"},
+  {"id": 2, "name": "Blue Jeans", "category": "clothing", "price": 1200, "brand": "Levi's", "image": "blue-jeans.jpg"},
+  {"id": 3, "name": "Sports Shoes", "category": "footwear", "price": 2000, "brand": "Adidas", "image": "sports-shoes.jpg"},
+  {"id": 4, "name": "Smart Watch", "category": "electronics", "price": 2500, "brand": "Apple", "image": "smart-watch.jpg"},
+  {"id": 5, "name": "Leather Jacket", "category": "clothing", "price": 3500, "brand": "Zara", "image": "leather-jacket.jpg"},
+  {"id": 6, "name": "Formal Shoes", "category": "footwear", "price": 2200, "brand": "Clarks", "image": "formal-shoes.jpg"},
+  {"id": 7, "name": "Wireless Earbuds", "category": "electronics", "price": 1800, "brand": "Sony", "image": "wireless-earbuds.jpg"},
+  {"id": 8, "name": "Microwave Oven", "category": "home appliances", "price": 6000, "brand": "LG", "image": "microwave-oven.jpg"},
+  {"id": 9, "name": "Perfume Set", "category": "beauty", "price": 1500, "brand": "Chanel", "image": "perfume-set.jpg"},
+  {"id": 10, "name": "Dining Table", "category": "furniture", "price": 12000, "brand": "IKEA", "image": "dining-table.jpg"},
+  {"id": 11, "name": "C++ Programming Book", "category": "books", "price": 500, "brand": "Pearson", "image": "cpp-book.jpg"},
+  {"id": 12, "name": "Organic Rice 5kg", "category": "groceries", "price": 700, "brand": "Organic India", "image": "organic-rice.jpg"}
 ]
