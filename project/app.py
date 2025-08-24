@@ -4,6 +4,10 @@ import re
 import requests
 import os
 import random
+from functools import lru_cache
+import time
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 app = Flask(__name__)
 
@@ -13,8 +17,23 @@ with open("Projects.json") as f:
 
 cart = []
 
-# API Configuration
+# API Configuration with connection pooling
 FAKE_STORE_API_URL = 'https://fakestoreapi.com/products'
+
+# Create session with connection pooling and retry strategy
+session = requests.Session()
+retry_strategy = Retry(
+    total=2,
+    backoff_factor=0.1,
+    status_forcelist=[429, 500, 502, 503, 504],
+)
+adapter = HTTPAdapter(max_retries=retry_strategy, pool_connections=10, pool_maxsize=10)
+session.mount("http://", adapter)
+session.mount("https://", adapter)
+
+# Cache for API responses
+api_cache = {}
+CACHE_DURATION = 300  # 5 minutes
 
 def get_random_fashion_image():
     # Use a curated Unsplash collection or Picsum
@@ -29,16 +48,32 @@ def fetch_myntra_products():
         return r.json()
     return []
 
+@lru_cache(maxsize=1)
 def fetch_fake_store_products():
-    """Fetch from Fake Store API - Free alternative for testing"""
+    """Fetch from Fake Store API with caching and optimized requests"""
+    cache_key = 'fake_store_products'
+    current_time = time.time()
+    
+    # Check cache first
+    if cache_key in api_cache:
+        cached_data, timestamp = api_cache[cache_key]
+        if current_time - timestamp < CACHE_DURATION:
+            return cached_data
+    
     try:
-        response = requests.get(FAKE_STORE_API_URL)
+        response = session.get(FAKE_STORE_API_URL, timeout=3)
         if response.status_code == 200:
             data = response.json()
-            return format_fake_store_products(data)
+            formatted_data = format_fake_store_products(data)
+            # Cache the result
+            api_cache[cache_key] = (formatted_data, current_time)
+            return formatted_data
         return []
     except Exception as e:
         print(f"Error fetching products: {e}")
+        # Return cached data if available, even if expired
+        if cache_key in api_cache:
+            return api_cache[cache_key][0]
         return []
 
 def format_fake_store_products(fake_store_data):
@@ -50,7 +85,7 @@ def format_fake_store_products(fake_store_data):
             "id": item['id'] + 1000,
             "name": item['title'],
             "price": int(item['price'] * 80),
-            "image": item['image'] if item.get('image') else get_random_fashion_image(),
+            "image": item.get('image', ''),
             "brand": "Generic",
             "category": map_category(item['category']),
             "rating": round(item.get('rating', {}).get('rate', random.uniform(3.5, 4.9)), 1)
@@ -86,6 +121,17 @@ def chat():
     # Greetings
     if user_input.strip() in ["hi", "hello"]:
         return jsonify({"reply": "Hello! I am your AI shopping assistant. How can I help you?"})
+    
+    # Show cart
+    elif "cart" in user_input and ("show" in user_input or "view" in user_input or "my" in user_input):
+        if cart:
+            total_price = sum(item["price"] for item in cart)
+            return jsonify({
+                "reply": f"Your cart has {len(cart)} item(s). Total: ₹{total_price}",
+                "products": cart
+            })
+        else:
+            return jsonify({"reply": "Your cart is empty. Start shopping to add items!"})
 
     # Search products by category
     elif "show" in user_input or "find" in user_input:
@@ -118,48 +164,32 @@ def chat():
         if not category:
             return jsonify({"reply": "Please tell me which category you are looking for: clothing, footwear, electronics, home appliances, beauty, furniture, books, groceries, accessories, sports, toys, or health."})
 
-        # Try external API first, then fallback to local data
-        external_products = fetch_fake_store_products()
+        # Combine local and external products for faster search
+        all_products = products.copy()
         
-        if external_products:
-            external_results = [p for p in external_products if p["category"] == category]
-            if external_results:
-                price_match = re.findall(r'\d+', user_input)
-                if price_match:
-                    max_price = int(price_match[0])
-                    external_results = [p for p in external_results if p["price"] <= max_price]
-                    if external_results:
-                        return jsonify({
-                            "reply": f"Here are some {category} items under ₹{max_price}:",
-                            "products": external_results[:5]
-                        })
-                else:
-                    return jsonify({
-                        "reply": f"Here are some {category} items:",
-                        "products": external_results[:5]
-                    })
+        # Only fetch external products if local results are insufficient
+        local_results = [p for p in products if p["category"] == category]
         
-        # Fallback to local products
+        if len(local_results) < 3:  # Only fetch external if we need more products
+            external_products = fetch_fake_store_products()
+            if external_products:
+                external_results = [p for p in external_products if p["category"] == category]
+                all_products.extend(external_results)
+        
+        # Filter by category and price in one pass
         price_match = re.findall(r'\d+', user_input)
-        if price_match:
-            max_price = int(price_match[0])
-            results = [p for p in products if p["category"] == category and p["price"] <= max_price]
-            if results:
-                return jsonify({
-                    "reply": f"Here are some {category} items under ₹{max_price}:",
-                    "products": results
-                })
-            else:
-                return jsonify({"reply": "Sorry, no products found in that category under your budget."})
+        max_price = int(price_match[0]) if price_match else float('inf')
+        
+        results = [p for p in all_products if p["category"] == category and p["price"] <= max_price][:5]
+        
+        if results:
+            reply_text = f"Here are some {category} items" + (f" under ₹{max_price}" if price_match else "") + ":"
+            return jsonify({
+                "reply": reply_text,
+                "products": results
+            })
         else:
-            results = [p for p in products if p["category"] == category]
-            if results:
-                return jsonify({
-                    "reply": f"Here are some {category} items:",
-                    "products": results
-                })
-            else:
-                return jsonify({"reply": "Sorry, no products found in that category."})
+            return jsonify({"reply": "Sorry, no products found matching your criteria."})
 
     # Filter and sort endpoint
     elif "filter" in user_input or "sort" in user_input:
@@ -189,12 +219,23 @@ def chat():
 @app.route("/add_to_cart", methods=["POST"])
 def add_to_cart():
     item_id = request.json.get("id")
-    all_products = products + fetch_fake_store_products()
-    item = next((p for p in all_products if p["id"] == item_id), None)
+    
+    # Search local products first (faster)
+    item = next((p for p in products if p["id"] == item_id), None)
+    
+    # Only fetch external products if not found locally
+    if not item:
+        external_products = fetch_fake_store_products()
+        item = next((p for p in external_products if p["id"] == item_id), None)
+    
     if item:
         cart.append(item)
-        return jsonify({"success": True, "cart": cart})
-    return jsonify({"success": False})
+        return jsonify({
+            "success": True, 
+            "message": f"'{item['name']}' added to cart!",
+            "cart_count": len(cart)
+        })
+    return jsonify({"success": False, "message": "Item not found"})
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -80,9 +80,9 @@ async function addToCart(productId) {
     });
     const data = await response.json();
     if (data.success) {
-      appendMessage("✅ Item added to cart!", "bot");
+      appendMessage(`✅ ${data.message}`, "bot");
     } else {
-      appendMessage("❌ Failed to add item to cart.", "bot");
+      appendMessage(`❌ ${data.message || 'Failed to add item to cart.'}`, "bot");
     }
   } catch (error) {
     appendMessage("⚠️ Error adding to cart.", "bot");
